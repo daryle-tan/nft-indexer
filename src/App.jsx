@@ -8,46 +8,104 @@ import {
   Input,
   SimpleGrid,
   Text,
-} from '@chakra-ui/react';
-import { Alchemy, Network } from 'alchemy-sdk';
-import { useState } from 'react';
+} from "@chakra-ui/react"
+import { Alchemy, Network, Utils } from "alchemy-sdk"
+import { useState, useEffect } from "react"
+import { ethers } from "ethers"
 
 function App() {
-  const [userAddress, setUserAddress] = useState('');
-  const [results, setResults] = useState([]);
-  const [hasQueried, setHasQueried] = useState(false);
-  const [tokenDataObjects, setTokenDataObjects] = useState([]);
+  const [userAddress, setUserAddress] = useState("")
+  const [results, setResults] = useState([])
+  const [hasQueried, setHasQueried] = useState(false)
+  const [tokenDataObjects, setTokenDataObjects] = useState([])
+  const [account, setAccount] = useState(null)
+
+  const connectHandler = async () => {
+    const addresses = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    })
+    const address = ethers.utils.getAddress(addresses[0])
+
+    setAccount(true)
+    setUserAddress(address)
+  }
+
+  useEffect(() => {
+    if (userAddress) {
+      console.log("User is connected! Address:", userAddress)
+      getNFTsForOwner()
+    } else {
+      console.log("User is no longer connected!")
+    }
+  }, [userAddress])
 
   async function getNFTsForOwner() {
     const config = {
-      apiKey: '<-- COPY-PASTE YOUR ALCHEMY API KEY HERE -->',
+      apiKey: "zqnjSXHHjA5JJ6sbz6x_1-8PgbAwFEon",
       network: Network.ETH_MAINNET,
-    };
+    }
 
-    const alchemy = new Alchemy(config);
-    const data = await alchemy.nft.getNftsForOwner(userAddress);
-    setResults(data);
+    const alchemy = new Alchemy(config)
+    const data = await alchemy.nft.getNftsForOwner(userAddress)
+    setResults(data)
 
-    const tokenDataPromises = [];
+    const tokenDataPromises = []
 
     for (let i = 0; i < data.ownedNfts.length; i++) {
       const tokenData = alchemy.nft.getNftMetadata(
         data.ownedNfts[i].contract.address,
-        data.ownedNfts[i].tokenId
-      );
-      tokenDataPromises.push(tokenData);
+        data.ownedNfts[i].tokenId,
+      )
+      tokenDataPromises.push(tokenData)
     }
 
-    setTokenDataObjects(await Promise.all(tokenDataPromises));
-    setHasQueried(true);
+    setTokenDataObjects(await Promise.all(tokenDataPromises))
+    setHasQueried(true)
   }
   return (
     <Box w="100vw">
+      <>
+        {account ? (
+          <Center>
+            <Flex
+              alignItems={"center"}
+              justifyContent="center"
+              flexDirection={"column"}
+            >
+              <Button
+                fontSize={20}
+                // onClick={disconnectHandler}
+                mt={36}
+                bgColor="orange"
+              >
+                Wallet Connected
+              </Button>
+            </Flex>
+          </Center>
+        ) : (
+          <Center>
+            <Flex
+              alignItems={"center"}
+              justifyContent="center"
+              flexDirection={"column"}
+            >
+              <Button
+                fontSize={20}
+                onClick={connectHandler}
+                mt={36}
+                bgColor="#65db7f"
+              >
+                Connect Wallet
+              </Button>
+            </Flex>
+          </Center>
+        )}
+      </>
       <Center>
         <Flex
-          alignItems={'center'}
+          alignItems={"center"}
           justifyContent="center"
-          flexDirection={'column'}
+          flexDirection={"column"}
         >
           <Heading mb={0} fontSize={36}>
             NFT Indexer 🖼
@@ -61,7 +119,7 @@ function App() {
         w="100%"
         flexDirection="column"
         alignItems="center"
-        justifyContent={'center'}
+        justifyContent={"center"}
       >
         <Heading mt={42}>Get all the ERC-721 tokens of this address:</Heading>
         <Input
@@ -80,39 +138,41 @@ function App() {
         <Heading my={36}>Here are your NFTs:</Heading>
 
         {hasQueried ? (
-          <SimpleGrid w={'90vw'} columns={4} spacing={24}>
+          <SimpleGrid w={"90vw"} columns={4} spacing={24}>
             {results.ownedNfts.map((e, i) => {
               return (
                 <Flex
-                  flexDir={'column'}
+                  flexDir={"column"}
                   color="white"
                   bg="blue"
-                  w={'20vw'}
+                  w={"20vw"}
                   key={e.id}
                 >
                   <Box>
-                    <b>Name:</b>{' '}
+                    <b>Name:</b>{" "}
                     {tokenDataObjects[i].title?.length === 0
-                      ? 'No Name'
+                      ? "No Name"
                       : tokenDataObjects[i].title}
                   </Box>
                   <Image
                     src={
                       tokenDataObjects[i]?.rawMetadata?.image ??
-                      'https://via.placeholder.com/200'
+                      "https://via.placeholder.com/200"
                     }
-                    alt={'Image'}
+                    alt={"Image"}
                   />
                 </Flex>
-              );
+              )
             })}
           </SimpleGrid>
+        ) : results && !hasQueried ? (
+          "Loading Tokens..."
         ) : (
-          'Please make a query! The query may take a few seconds...'
+          "Please make a query! The query may take a few seconds..."
         )}
       </Flex>
     </Box>
-  );
+  )
 }
 
-export default App;
+export default App
