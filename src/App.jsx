@@ -37,7 +37,7 @@ function App() {
     } else {
       console.log("User is no longer connected!")
     }
-  }, [userAddress])
+  }, [account])
 
   async function getNFTsForOwner() {
     const config = {
@@ -131,7 +131,12 @@ function App() {
           bgColor="white"
           fontSize={24}
         />
-        <Button fontSize={20} onClick={getNFTsForOwner} mt={36} bgColor="blue">
+        <Button
+          fontSize={20}
+          onClick={getNFTsForOwner}
+          mt={36}
+          bgColor="rgb(38, 177, 177)"
+        >
           Fetch NFTs
         </Button>
 
