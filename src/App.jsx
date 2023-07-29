@@ -25,9 +25,6 @@ function App() {
       method: "eth_requestAccounts",
     })
     const address = ethers.utils.getAddress(addresses[0])
-
-    setAccount(true)
-    setUserAddress(address)
   }
 
   useEffect(() => {
@@ -44,7 +41,8 @@ function App() {
       apiKey: "zqnjSXHHjA5JJ6sbz6x_1-8PgbAwFEon",
       network: Network.ETH_MAINNET,
     }
-
+    setAccount(false)
+    setUserAddress(null)
     const alchemy = new Alchemy(config)
     const data = await alchemy.nft.getNftsForOwner(userAddress)
     setResults(data)
