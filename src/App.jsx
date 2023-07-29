@@ -143,13 +143,13 @@ function App() {
         alignItems="center"
         justifyContent={"center"}
       >
-        <Heading mt={42}>Enter your ENS name</Heading>
+        <Heading mt={22}>Enter your ENS name</Heading>
         <Input
           type="text"
           value={ensName}
           onChange={handleInputChange}
           color="black"
-          w="600px"
+          w="400px"
           textAlign="center"
           p={4}
           bgColor="white"
@@ -185,7 +185,13 @@ function App() {
 
         <Heading my={36}>Here are your NFTs:</Heading>
         {hasQueried ? (
-          <SimpleGrid w={"90vw"} columns={4} spacing={24}>
+          <SimpleGrid
+            w={"90vw"}
+            columns={4}
+            spacing={24}
+            overflow="auto"
+            h="400px"
+          >
             {results.ownedNfts.map((e, i) => {
               return (
                 <Flex
@@ -194,6 +200,7 @@ function App() {
                   bg="blue"
                   w={"20vw"}
                   key={e.id}
+                  padding={4}
                 >
                   <Box>
                     <b>Name:</b>{" "}
