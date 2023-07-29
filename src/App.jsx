@@ -9,7 +9,7 @@ import {
   SimpleGrid,
   Text,
 } from "@chakra-ui/react"
-import { Alchemy, Network, Utils } from "alchemy-sdk"
+import { Alchemy, Network } from "alchemy-sdk"
 import { useState, useEffect } from "react"
 import { ethers } from "ethers"
 
@@ -27,7 +27,7 @@ function App() {
     const address = ethers.utils.getAddress(addresses[0])
 
     setAccount(true)
-    setUserAddress(address)
+    setUserAddress(null)
   }
 
   useEffect(() => {
@@ -40,6 +40,8 @@ function App() {
   }, [account])
 
   async function getNFTsForOwner() {
+    setAccount(false)
+    setUserAddress("")
     const config = {
       apiKey: "zqnjSXHHjA5JJ6sbz6x_1-8PgbAwFEon",
       network: Network.ETH_MAINNET,
@@ -52,7 +54,7 @@ function App() {
     const tokenDataPromises = []
 
     for (let i = 0; i < data.ownedNfts.length; i++) {
-      const tokenData = alchemy.nft.getNftMetadata(
+      const tokenData = await alchemy.nft.getNftMetadata(
         data.ownedNfts[i].contract.address,
         data.ownedNfts[i].tokenId,
       )
@@ -72,12 +74,7 @@ function App() {
               justifyContent="center"
               flexDirection={"column"}
             >
-              <Button
-                fontSize={20}
-                // onClick={disconnectHandler}
-                mt={36}
-                bgColor="orange"
-              >
+              <Button fontSize={20} mt={36} bgColor="orange">
                 Wallet Connected
               </Button>
             </Flex>
@@ -141,7 +138,6 @@ function App() {
         </Button>
 
         <Heading my={36}>Here are your NFTs:</Heading>
-
         {hasQueried ? (
           <SimpleGrid w={"90vw"} columns={4} spacing={24}>
             {results.ownedNfts.map((e, i) => {
@@ -170,10 +166,10 @@ function App() {
               )
             })}
           </SimpleGrid>
-        ) : results && !hasQueried ? (
-          "Loading Tokens..."
+        ) : results.length !== 0 && !hasQueried ? (
+          "Loading NFTs..."
         ) : (
-          "Please make a query! The query may take a few seconds..."
+          "Please make a query! This may take a few seconds..."
         )}
       </Flex>
     </Box>
@@ -181,3 +177,5 @@ function App() {
 }
 
 export default App
+
+// 0xaf129b8b277C5348d64001aEbDD07D118bd95515
