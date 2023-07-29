@@ -27,7 +27,7 @@ function App() {
     const address = ethers.utils.getAddress(addresses[0])
 
     setAccount(true)
-    setUserAddress(null)
+    setUserAddress(address)
   }
 
   useEffect(() => {
@@ -40,8 +40,6 @@ function App() {
   }, [account])
 
   async function getNFTsForOwner() {
-    setAccount(false)
-    setUserAddress("")
     const config = {
       apiKey: "zqnjSXHHjA5JJ6sbz6x_1-8PgbAwFEon",
       network: Network.ETH_MAINNET,
