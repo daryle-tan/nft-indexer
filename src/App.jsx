@@ -11,8 +11,7 @@ import {
 } from "@chakra-ui/react"
 import { Alchemy, Network } from "alchemy-sdk"
 import { useState, useEffect } from "react"
-import { ethers } from "ethers"
-import { ENSNamehash } from "eth-ens-namehash"
+import { ethers, providers } from "ethers"
 
 function App() {
   const [userAddress, setUserAddress] = useState("")
@@ -22,13 +21,21 @@ function App() {
   const [account, setAccount] = useState("")
   const [ensName, setEnsName] = useState("")
 
+  const provider = new ethers.providers.JsonRpcProvider(
+    "https://eth-mainnet.g.alchemy.com/v2/917wXcDegaRi4LnmRlDaiNWQQlVIslPd",
+  )
+
   const handleInputChange = (e) => {
     setEnsName(e.target.value)
   }
 
-  const handleSearch = () => {
-    const ensHash = ENSNamehash(ensName)
-    console.log("ENS Hash:", ensHash)
+  const handleSearch = async () => {
+    try {
+      const ensAddress = await provider.resolveName(ensName)
+      console.log("ENS Address:", ensAddress)
+    } catch (error) {
+      console.log("Error resolving ENS name:", error)
+    }
   }
 
   const connectHandler = async () => {
