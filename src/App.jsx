@@ -12,13 +12,24 @@ import {
 import { Alchemy, Network } from "alchemy-sdk"
 import { useState, useEffect } from "react"
 import { ethers } from "ethers"
+import { ENSNamehash } from "eth-ens-namehash"
 
 function App() {
   const [userAddress, setUserAddress] = useState("")
   const [results, setResults] = useState([])
   const [hasQueried, setHasQueried] = useState(false)
   const [tokenDataObjects, setTokenDataObjects] = useState([])
-  const [account, setAccount] = useState(null)
+  const [account, setAccount] = useState("")
+  const [ensName, setEnsName] = useState("")
+
+  const handleInputChange = (e) => {
+    setEnsName(e.target.value)
+  }
+
+  const handleSearch = () => {
+    const ensHash = ENSNamehash(ensName)
+    console.log("ENS Hash:", ensHash)
+  }
 
   const connectHandler = async () => {
     try {
@@ -38,7 +49,7 @@ function App() {
       console.log("User is connected! Address:", userAddress)
       getNFTsForOwner()
     } else {
-      console.log("User is no longer connected!")
+      console.log("No address to fetch")
     }
   }, [account])
 
@@ -48,7 +59,7 @@ function App() {
         apiKey: "zqnjSXHHjA5JJ6sbz6x_1-8PgbAwFEon",
         network: Network.ETH_MAINNET,
       }
-      // setAccount(null)
+
       setHasQueried(false)
 
       const alchemy = new Alchemy(config)
@@ -125,6 +136,26 @@ function App() {
         alignItems="center"
         justifyContent={"center"}
       >
+        <Heading mt={42}>Enter your ENS name</Heading>
+        <Input
+          type="text"
+          value={ensName}
+          onChange={handleInputChange}
+          color="black"
+          w="600px"
+          textAlign="center"
+          p={4}
+          bgColor="white"
+          fontSize={24}
+        />
+        <Button
+          fontSize={20}
+          onClick={handleSearch}
+          mt={36}
+          bgColor="rgb(186, 104, 186)"
+        >
+          Search ENS Name
+        </Button>
         <Heading mt={42}>Get all the ERC-721 tokens of this address:</Heading>
         <Input
           onChange={(e) => setUserAddress(e.target.value)}
@@ -135,6 +166,7 @@ function App() {
           bgColor="white"
           fontSize={24}
         />
+
         <Button
           fontSize={20}
           onClick={getNFTsForOwner}
