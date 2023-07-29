@@ -21,10 +21,16 @@ function App() {
   const [account, setAccount] = useState(null)
 
   const connectHandler = async () => {
-    const addresses = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    })
-    const address = ethers.utils.getAddress(addresses[0])
+    try {
+      const addresses = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      })
+      const address = ethers.utils.getAddress(addresses[0])
+      setAccount(address)
+      setUserAddress(address)
+    } catch (error) {
+      console.log("Error connecting wallet:", error)
+    }
   }
 
   useEffect(() => {
@@ -37,28 +43,33 @@ function App() {
   }, [account])
 
   async function getNFTsForOwner() {
-    const config = {
-      apiKey: "zqnjSXHHjA5JJ6sbz6x_1-8PgbAwFEon",
-      network: Network.ETH_MAINNET,
+    try {
+      const config = {
+        apiKey: "zqnjSXHHjA5JJ6sbz6x_1-8PgbAwFEon",
+        network: Network.ETH_MAINNET,
+      }
+      // setAccount(null)
+      setHasQueried(false)
+
+      const alchemy = new Alchemy(config)
+      const data = await alchemy.nft.getNftsForOwner(userAddress)
+      setResults(data)
+
+      const tokenDataPromises = []
+
+      for (let i = 0; i < data.ownedNfts.length; i++) {
+        const tokenData = await alchemy.nft.getNftMetadata(
+          data.ownedNfts[i].contract.address,
+          data.ownedNfts[i].tokenId,
+        )
+        tokenDataPromises.push(tokenData)
+      }
+
+      setTokenDataObjects(await Promise.all(tokenDataPromises))
+      setHasQueried(true)
+    } catch (error) {
+      console.log("Error getting NFTs:", error)
     }
-    setAccount(false)
-    setUserAddress(null)
-    const alchemy = new Alchemy(config)
-    const data = await alchemy.nft.getNftsForOwner(userAddress)
-    setResults(data)
-
-    const tokenDataPromises = []
-
-    for (let i = 0; i < data.ownedNfts.length; i++) {
-      const tokenData = await alchemy.nft.getNftMetadata(
-        data.ownedNfts[i].contract.address,
-        data.ownedNfts[i].tokenId,
-      )
-      tokenDataPromises.push(tokenData)
-    }
-
-    setTokenDataObjects(await Promise.all(tokenDataPromises))
-    setHasQueried(true)
   }
   return (
     <Box w="100vw">
